@@ -3,7 +3,7 @@ using System;
 using System.Windows.Forms;
 #endregion using
 
-namespace HttpChecker
+namespace HttpRequestResponse
 {
     static class Program
     {
