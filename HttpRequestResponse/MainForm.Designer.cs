@@ -55,9 +55,12 @@
 			this.lblServer = new System.Windows.Forms.Label();
 			this.tabPageBody = new System.Windows.Forms.TabPage();
 			this.txtBody = new System.Windows.Forms.TextBox();
+			this.tabPageBrowser = new System.Windows.Forms.TabPage();
+			this.webBrowser = new System.Windows.Forms.WebBrowser();
 			this.tabHttpResponse.SuspendLayout();
 			this.tabPageHeaders.SuspendLayout();
 			this.tabPageBody.SuspendLayout();
+			this.tabPageBrowser.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// btnExit
@@ -102,6 +105,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.tabHttpResponse.Controls.Add(this.tabPageHeaders);
 			this.tabHttpResponse.Controls.Add(this.tabPageBody);
+			this.tabHttpResponse.Controls.Add(this.tabPageBrowser);
 			this.tabHttpResponse.Location = new System.Drawing.Point(11, 37);
 			this.tabHttpResponse.Name = "tabHttpResponse";
 			this.tabHttpResponse.SelectedIndex = 0;
@@ -306,7 +310,7 @@
 			this.tabPageBody.Controls.Add(this.txtBody);
 			this.tabPageBody.Location = new System.Drawing.Point(4, 22);
 			this.tabPageBody.Name = "tabPageBody";
-			this.tabPageBody.Size = new System.Drawing.Size(555, 262);
+			this.tabPageBody.Size = new System.Drawing.Size(555, 297);
 			this.tabPageBody.TabIndex = 1;
 			this.tabPageBody.Text = "Response Body";
 			// 
@@ -323,6 +327,26 @@
 			this.txtBody.Size = new System.Drawing.Size(555, 262);
 			this.txtBody.TabIndex = 0;
 			this.txtBody.TabStop = false;
+			// 
+			// tabPageBrowser
+			// 
+			this.tabPageBrowser.Controls.Add(this.webBrowser);
+			this.tabPageBrowser.Location = new System.Drawing.Point(4, 22);
+			this.tabPageBrowser.Name = "tabPageBrowser";
+			this.tabPageBrowser.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPageBrowser.Size = new System.Drawing.Size(555, 297);
+			this.tabPageBrowser.TabIndex = 2;
+			this.tabPageBrowser.Text = "Browser";
+			this.tabPageBrowser.UseVisualStyleBackColor = true;
+			// 
+			// webBrowser
+			// 
+			this.webBrowser.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.webBrowser.Location = new System.Drawing.Point(3, 3);
+			this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
+			this.webBrowser.Name = "webBrowser";
+			this.webBrowser.Size = new System.Drawing.Size(549, 291);
+			this.webBrowser.TabIndex = 0;
 			// 
 			// MainForm
 			// 
@@ -346,6 +370,7 @@
 			this.tabPageHeaders.PerformLayout();
 			this.tabPageBody.ResumeLayout(false);
 			this.tabPageBody.PerformLayout();
+			this.tabPageBrowser.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -378,5 +403,7 @@
         private System.Windows.Forms.Label lblServer;
         private System.Windows.Forms.TabPage tabPageBody;
         private System.Windows.Forms.TextBox txtBody;
-    }
+		private System.Windows.Forms.TabPage tabPageBrowser;
+		private System.Windows.Forms.WebBrowser webBrowser;
+	}
 }

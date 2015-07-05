@@ -4,6 +4,8 @@ using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
 #endregion using
@@ -93,7 +95,7 @@ namespace HttpRequestResponse
 			return rv;
 		}
 
-		private void GetHeaders()
+		private async void GetHeaders()
 		{
 			try
 			{
@@ -106,28 +108,49 @@ namespace HttpRequestResponse
 					txtBody.Text = String.Empty;
 					txtRawHeaders.Text = String.Empty;
 
-					var response = SendRequest();
+					var response = await SendRequest();
 
-					txtServer.Text = response.Server;
-					txtMethod.Text = response.Method + " HTTP " + response.ProtocolVersion;
+					var server = new StringBuilder();
+					if (response.Headers.Server != null)
+					{
+						foreach (var item in response.Headers.Server)
+						{
+							if (!String.IsNullOrWhiteSpace(item.Product.Name))
+							{
+								if (server.Length > 0)
+								{
+									server.Append("; ");
+								}
 
-					var formattedDates = response.LastModified.GetDateTimeFormats('F');
-					txtModified.Text = formattedDates[4];
+								server.Append(item.Product.Name);
 
-					txtLength.Text = response.ContentLength.ToString();
-					txtEncoding.Text = response.ContentEncoding;
-					txtContentType.Text = response.ContentType;
+								if (!String.IsNullOrWhiteSpace(item.Product.Version))
+								{
+									server.Append(" (");
+									server.Append(item.Product.Version);
+									server.Append(")");
+								}
+							}
+						}
+					}
+					txtServer.Text = server.ToString();
 
-					txtRequest.Text = response.Method + " " + response.ResponseUri;
-					txtStatus.Text = ((int)response.StatusCode).ToString() + " " + response.StatusDescription;
+					txtMethod.Text = response.RequestMessage.Method.Method + " HTTP/" + response.RequestMessage.Version.ToString();
+
+					txtModified.Text = response.Content.Headers.LastModified?.ToString(); 
+
+					txtLength.Text = response.Content.Headers.ContentLength?.ToString();
+					txtEncoding.Text = String.Join(", ", response.Content.Headers.ContentEncoding);
+					txtContentType.Text = response.Content.Headers.ContentType.MediaType;
+
+					txtRequest.Text = response.RequestMessage.Method.Method + " " + response.RequestMessage.RequestUri;
+					txtStatus.Text = (int)response.StatusCode + " " + response.ReasonPhrase;
 					txtRawHeaders.Text = response.Headers.ToString();
 
-					if (response.ContentType.ToLower().IndexOf("text/html") != -1)
+					if (response.Content.Headers.ContentType.MediaType == "text/html")
 					{
-						using (var sr = new StreamReader(response.GetResponseStream(), true))
-						{
-							txtBody.Text = sr.ReadToEnd();
-						}
+						txtBody.Text = await response.Content.ReadAsStringAsync();
+						webBrowser.DocumentText = txtBody.Text;
 					}
 				}
 				else
@@ -157,15 +180,17 @@ namespace HttpRequestResponse
 			}
 		}
 
-		private HttpWebResponse SendRequest()
+		private async Task<HttpResponseMessage> SendRequest()
 		{
 			var keepTrying = true;
-			HttpWebResponse response = null;
+			HttpResponseMessage response = null;
 
 			while (keepTrying == true)
 			{
-				var request = (HttpWebRequest)WebRequest.Create(txtUrl.Text);
-				response = (HttpWebResponse)request.GetResponse();
+				using (var client = new HttpClient())
+				{
+					response = await client.GetAsync(txtUrl.Text);
+				}
 
 				switch (response.StatusCode)
 				{
@@ -174,7 +199,14 @@ namespace HttpRequestResponse
 						{
 							if (dialog.ShowDialog() == DialogResult.OK)
 							{
-								request.Credentials = new NetworkCredential(dialog.UserName, dialog.Password);
+								using (var handler = new HttpClientHandler
+								{
+									Credentials = new NetworkCredential(dialog.UserName, dialog.Password)
+								})
+								using (var client = new HttpClient(handler))
+								{
+									response = await client.GetAsync(txtUrl.Text);
+								}
 							}
 							else
 							{
@@ -187,7 +219,6 @@ namespace HttpRequestResponse
 						keepTrying = false;
 						break;
 				}
-
 			}
 
 			return response;
